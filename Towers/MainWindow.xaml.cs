@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,9 @@ namespace HanoiTowers
         private StackPanel[] _towers; // Массив башен
         private int _diskCount; // Количество дисков
         private int _AnimationSpeed; // Скорость анимации в миллисекундах
+        private CancellationTokenSource _cancellationTokenSource; // Для отмены анимации
+        private bool _isStepByStep = false; // Флаг пошагового режима
+        private TaskCompletionSource<bool> _nextStep; // Для управления шагами
 
         public MainWindow()
         {
@@ -64,6 +68,15 @@ namespace HanoiTowers
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            // Останавливаем предыдущую анимацию, если она была запущена
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+            }
+
+            _cancellationTokenSource = new CancellationTokenSource(); // Новый токен для отмены
+            _isStepByStep = false; // Обычный режим
+
             try
             {
                 _diskCount = Convert.ToInt32(DiscCount.Text); // Пробуем преобразовать текст в число
@@ -75,7 +88,7 @@ namespace HanoiTowers
                 }
 
                 InitializeDisks(); // Инициализация башен с дисками
-                await Task.Run(() => Hanoi(_diskCount, 0, 2, 1)); // Запуск решения задачи Ханойских башен
+                await Task.Run(() => Hanoi(_diskCount, 0, 2, 1, _cancellationTokenSource.Token)); // Запуск решения задачи Ханойских башен
             }
             catch (FormatException)
             {
@@ -91,17 +104,54 @@ namespace HanoiTowers
             }
         }
 
-        private async Task Hanoi(int n, int from, int to, int aux)
+        // Кнопка для остановки анимации
+        private void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            if (n > 0)
+            if (_cancellationTokenSource != null)
             {
-                await Hanoi(n - 1, from, aux, to);
-                await MoveDisk(from, to);
-                await Hanoi(n - 1, aux, to, from);
+                _cancellationTokenSource.Cancel(); // Останавливаем текущую задачу
             }
         }
 
-        private async Task MoveDisk(int from, int to)
+        // Кнопка для пошагового режима
+        private void NextStepButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isStepByStep && _nextStep != null && !_nextStep.Task.IsCompleted) // Проверяем, что задача ещё не завершена
+            {
+                _nextStep.SetResult(true); // Разрешаем выполнение следующего шага
+            }
+        }
+
+        // Ожидание следующего шага в пошаговом режиме
+        private async Task WaitForNextStep()
+        {
+            if (_isStepByStep) // Ожидаем шага только в пошаговом режиме
+            {
+                _nextStep = new TaskCompletionSource<bool>();
+                await _nextStep.Task; // Ожидаем сигнала на следующий шаг
+            }
+        }
+
+
+        private async Task Hanoi(int n, int from, int to, int aux, CancellationToken token)
+        {
+            if (n > 0)
+            {
+                await Hanoi(n - 1, from, aux, to, token);
+
+                if (token.IsCancellationRequested) return; // Проверка на отмену
+
+                await MoveDisk(from, to, token);
+
+                if (_isStepByStep) await WaitForNextStep(); // Ожидаем сигнала на следующий шаг
+
+                if (token.IsCancellationRequested) return; // Проверка на отмену
+
+                await Hanoi(n - 1, aux, to, from, token);
+            }
+        }
+
+        private async Task MoveDisk(int from, int to, CancellationToken token)
         {
             await Dispatcher.InvokeAsync(() =>
             {
@@ -114,7 +164,21 @@ namespace HanoiTowers
             });
 
             // Используем скорость анимации, заданную пользователем
-            await Task.Delay(_AnimationSpeed); // Задержка для визуализации перемещения
+            await Task.Delay(_AnimationSpeed, token); // Задержка для визуализации перемещения с учетом отмены
+        }
+
+        // Включение пошагового режима и обратно в автоматический
+        private void ToggleStepByStepMode_Click(object sender, RoutedEventArgs e)
+        {
+            _isStepByStep = !_isStepByStep; // Переключаем режим
+            var button = sender as Button;
+            button.Content = _isStepByStep ? "Переключиться на автоматический режим" : "Включить пошаговый режим";
+
+            // Если переключаемся в автоматический режим, освобождаем текущий шаг
+            if (!_isStepByStep && _nextStep != null && !_nextStep.Task.IsCompleted)
+            {
+                _nextStep.SetResult(true); // Освобождаем задачу для продолжения в автоматическом режиме
+            }
         }
     }
 }

@@ -9,31 +9,34 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- Башня 1 -->
+        <!-- Башни -->
         <Border Grid.Column="0" Height="300" VerticalAlignment="Bottom" BorderBrush="Black" BorderThickness="1">
             <StackPanel Name="Tower1" VerticalAlignment="Bottom" />
         </Border>
 
-        <!-- Башня 2 -->
         <Border Grid.Column="1" Height="300" VerticalAlignment="Bottom" BorderBrush="Black" BorderThickness="1">
             <StackPanel Name="Tower2" VerticalAlignment="Bottom" />
         </Border>
 
-        <!-- Башня 3 -->
         <Border Grid.Column="2" Height="300" VerticalAlignment="Bottom" BorderBrush="Black" BorderThickness="1">
             <StackPanel Name="Tower3" VerticalAlignment="Bottom" />
         </Border>
 
         <!-- Управление -->
         <StackPanel Grid.ColumnSpan="3" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-            <TextBlock Text="Количество дисков: " VerticalAlignment="Center" Margin="5"/>
-            <TextBox Name="DiscCount" Width="50" Text="5" />
-            <Button Content="Начать" Height="30" Width="100" Margin="10" Click="StartButton_Click" />
+            <Button Content="Следующий шаг" Height="30" Width="100" Margin="10" Click="NextStepButton_Click" />
+
+            <!-- Новая кнопка переключения между режимами -->
+            <Button Content="Включить пошаговый режим" Height="30" Width="200" Margin="10" Click="ToggleStepByStepMode_Click" />
 
             <!-- Слайдер для настройки скорости анимации -->
             <TextBlock Text="Скорость анимации (мс):" VerticalAlignment="Center" Margin="10,0,0,0"/>
             <Slider Name="AnimationSpeedSlider" Minimum="100" Maximum="2000" Value="500" Width="150" Margin="5,0" 
                     ValueChanged="AnimationSpeedSlider_ValueChanged"/>
         </StackPanel>
+        <TextBox x:Name="DiscCount" Text="5" Margin="176,86,42,336" RenderTransformOrigin="2.693,0.832" />
+        <TextBlock Text="Количество дисков: " VerticalAlignment="Top" Margin="22,103,134,0"/>
+        <Button Content="Начать" Margin="10,72,156,368" Click="StartButton_Click" Grid.Column="1" />
+        <Button Content="Остановить" Margin="142,70,24,368" Click="StopButton_Click" Grid.Column="1" />
     </Grid>
 </Window>
