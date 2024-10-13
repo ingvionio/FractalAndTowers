@@ -1,0 +1,12 @@
+﻿<Window x:Class="Launcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Выбор задачи" Height="200" Width="400" MinHeight="200" MinWidth="400"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Content="Запустить фрактал дракона" Width="200" Height="40" Click="OpenFractalPage_Click"/>
+            <Button Content="Запустить Ханойские башни" Width="200" Height="40" Click="OpenHanoiPage_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

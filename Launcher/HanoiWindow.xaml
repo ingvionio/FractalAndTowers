@@ -1,7 +1,8 @@
-﻿<Window x:Class="HanoiTowers.MainWindow"
+﻿<Window x:Class="Launcher.HanoiWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Ханойские Башни" Height="500" Width="800">
+        Title="Ханойские Башни" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -24,6 +25,7 @@
 
         <!-- Управление -->
         <StackPanel Grid.ColumnSpan="3" VerticalAlignment="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button Content="Назад" HorizontalAlignment="Left" Margin="10" Click="BackButton_Click" />
             <Button Content="Следующий шаг" Height="30" Width="100" Margin="10" Click="NextStepButton_Click" />
 
             <!-- Новая кнопка переключения между режимами -->
