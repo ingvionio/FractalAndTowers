@@ -1,137 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿// MainWindow.xaml.cs
+using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace HanoiTowers
+namespace DragonFractal
 {
     public partial class MainWindow : Window
     {
-        private const int PegCount = 3; // Количество столбов (A, B, C)
-
-        private List<Stack<Rectangle>> pegs; // Список для хранения дисков на каждом столбе
-        private List<Tuple<int, int>> moves; // Список ходов для пошаговой анимации
-        private int currentMoveIndex; // Текущий ход в анимации
-
         public MainWindow()
         {
             InitializeComponent();
-            InitializePegs((int)DiskSlider.Value); // Инициализация башен с выбранным количеством дисков
+            // Привязываем обработчики к слайдерам
+            DepthSlider.ValueChanged += DepthSlider_ValueChanged;
+            SizeSlider.ValueChanged += SizeSlider_ValueChanged;
+
+            // Устанавливаем начальные значения текстовых блоков
+            UpdateDepthText();
+            UpdateSizeText();
         }
 
-        private void InitializePegs(int numDisks)
+        // Метод для построения фрактала дракона
+        private void DrawDragonCurve(double x1, double y1, double x2, double y2, int depth, bool turnRight)
         {
-            HanoiCanvas.Children.Clear();
-            pegs = new List<Stack<Rectangle>>(PegCount);
-            moves = new List<Tuple<int, int>>();
-            currentMoveIndex = 0;
-
-            // Инициализируем столбы
-            for (int i = 0; i < PegCount; i++)
+            if (depth == 0)
             {
-                pegs.Add(new Stack<Rectangle>());
+                // Рисуем прямую линию на базовом уровне
+                DrawLine(x1, y1, x2, y2);
             }
-
-            // Добавляем диски на первый столб (A)
-            for (int i = numDisks; i > 0; i--)
+            else
             {
-                var disk = new Rectangle
-                {
-                    Width = 20 + i * 20,
-                    Height = 20,
-                    Fill = Brushes.LightBlue,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 1
-                };
-                pegs[0].Push(disk);
-            }
+                // Вычисляем поворот в зависимости от того, направо ли нужно повернуть
+                double midX = (x1 + x2) / 2 + (turnRight ? (y2 - y1) / 2 : -(y2 - y1) / 2);
+                double midY = (y1 + y2) / 2 + (turnRight ? -(x2 - x1) / 2 : (x2 - x1) / 2);
 
-            DrawTowers();
-        }
-
-        private void GenerateMoves(int n, int fromPeg, int toPeg, int auxPeg)
-        {
-            if (n > 0)
-            {
-                GenerateMoves(n - 1, fromPeg, auxPeg, toPeg);
-                moves.Add(new Tuple<int, int>(fromPeg, toPeg)); // Сохраняем ход
-                GenerateMoves(n - 1, auxPeg, toPeg, fromPeg);
+                // Рекурсивно строим обе части фрактала
+                DrawDragonCurve(x1, y1, midX, midY, depth - 1, true);
+                DrawDragonCurve(midX, midY, x2, y2, depth - 1, false);
             }
         }
 
-        private async Task MoveDisk(int fromPeg, int toPeg)
+        // Метод для отрисовки линии на Canvas
+        private void DrawLine(double x1, double y1, double x2, double y2)
         {
-            if (pegs[fromPeg].Count > 0)
+            Line line = new Line
             {
-                var disk = pegs[fromPeg].Pop();
-                pegs[toPeg].Push(disk);
-                DrawTowers();
-                await Task.Delay(500); // Задержка для визуализации (не обязательно)
-            }
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            };
+            MyCanvas.Children.Add(line);
         }
 
-        private void DrawTowers()
+        // Метод для очистки Canvas
+        private void ClearCanvas()
         {
-            HanoiCanvas.Children.Clear(); // Очищаем канвас
-
-            double canvasWidth = HanoiCanvas.ActualWidth;
-            double pegSpacing = canvasWidth / PegCount;
-
-            // Рисуем столбы
-            for (int i = 0; i < PegCount; i++)
-            {
-                double pegX = pegSpacing / 2 + i * pegSpacing;
-                var pegLine = new Line
-                {
-                    X1 = pegX,
-                    Y1 = 50,
-                    X2 = pegX,
-                    Y2 = HanoiCanvas.ActualHeight - 50,
-                    Stroke = Brushes.Black,
-                    StrokeThickness = 5
-                };
-                HanoiCanvas.Children.Add(pegLine);
-
-                // Рисуем диски на текущем столбе, начиная снизу
-                int offset = 0;
-                foreach (var disk in pegs[i])
-                {
-                    Canvas.SetLeft(disk, pegX - disk.Width / 2);
-                    Canvas.SetTop(disk, HanoiCanvas.ActualHeight - 50 - (offset + 1) * 20);
-                    HanoiCanvas.Children.Add(disk);
-                    offset++;
-                }
-            }
+            MyCanvas.Children.Clear();
         }
 
-        // Начать решение
-        private void Start_Click(object sender, RoutedEventArgs e)
+        // Обработчик кнопки для перерисовки фрактала
+        private void DrawButton_Click(object sender, RoutedEventArgs e)
         {
-            int numDisks = (int)DiskSlider.Value;
-            InitializePegs(numDisks);
-            moves.Clear();
-            GenerateMoves(numDisks, 0, 2, 1); // Генерируем список шагов
+            ClearCanvas();
+
+            int depth = (int)DepthSlider.Value; // Получаем значение глубины из слайдера
+            double size = SizeSlider.Value;     // Получаем значение размера из слайдера
+
+            // Начальные точки
+            double x1 = MyCanvas.ActualWidth / 2 - size / 2;
+            double y1 = MyCanvas.ActualHeight / 2;
+            double x2 = MyCanvas.ActualWidth / 2 + size / 2;
+            double y2 = MyCanvas.ActualHeight / 2;
+
+            // Рисуем фрактал кривой дракона
+            DrawDragonCurve(x1, y1, x2, y2, depth, true);
         }
 
-        // Шаг вперед
-        private async void StepForward_Click(object sender, RoutedEventArgs e)
+        // Обработчики событий изменения значений слайдеров
+        private void DepthSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (currentMoveIndex < moves.Count)
-            {
-                var move = moves[currentMoveIndex];
-                await MoveDisk(move.Item1, move.Item2);
-                currentMoveIndex++;
-            }
+            UpdateDepthText();
         }
 
-        // Сброс
-        private void Reset_Click(object sender, RoutedEventArgs e)
+        private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            InitializePegs((int)DiskSlider.Value); // Сброс башен
-            currentMoveIndex = 0; // Сброс шагов
+            UpdateSizeText();
+        }
+
+        // Методы для обновления значений текстовых блоков
+        private void UpdateDepthText()
+        {
+            DepthTextBlock.Text = $"Depth: {DepthSlider.Value:F0}";
+        }
+
+        private void UpdateSizeText()
+        {
+            SizeTextBlock.Text = $"Size: {SizeSlider.Value:F0}";
         }
     }
 }
