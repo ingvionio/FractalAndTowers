@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
 namespace Launcher
@@ -62,7 +63,7 @@ namespace Launcher
 
         private void AnimationSpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _AnimationSpeed = 2100 - (int)AnimationSpeedSlider.Value;
+            _AnimationSpeed = 2500 - (int)AnimationSpeedSlider.Value;
         }
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
@@ -136,7 +137,7 @@ namespace Launcher
                 if (token.IsCancellationRequested) return;
 
                 await MoveDisk(from, to, token);
-
+                await Task.Delay(_AnimationSpeed*5);
                 if (_isStepByStep) await WaitForNextStep();
 
                 if (token.IsCancellationRequested) return;
@@ -149,16 +150,99 @@ namespace Launcher
         {
             await Dispatcher.InvokeAsync(() =>
             {
+
                 if (_towers[from].Children.Count > 1)
                 {
                     var disk = _towers[from].Children.OfType<Rectangle>().First();
-                    _towers[from].Children.Remove(disk);
-                    _towers[to].Children.Insert(1, disk);
+                    //_towers[from].Children.Remove(disk);
+
+                    //_towers[to].Children.Insert(1, disk);
+                    //var newDisk = _towers[to].Children.OfType<Rectangle>().First();
+                    //_towers[to].Children.Remove(disk);
+                    
+                    DiskAnimation(disk, _towers[from], _towers[to], token);
+                    
                 }
             });
-
             await Task.Delay(_AnimationSpeed, token);
         }
+
+        private async Task DiskAnimation(Rectangle disk, StackPanel currentTower, StackPanel targetTower, CancellationToken token)
+        {
+
+            // Создаем TranslateTransform для диска
+            TranslateTransform transform = new TranslateTransform();
+            disk.RenderTransform = transform;
+
+            // Получаем текущее положение диска относительно окна
+            Point startPoint = disk.TranslatePoint(new Point(0, 0), this);
+
+
+
+            // Удаляем диск из его текущего контейнера
+            currentTower.Children.Remove(disk);
+            targetTower.Children.Insert(1, disk);
+
+            Rectangle newDisk = targetTower.Children.OfType<Rectangle>().First();
+
+            Point endPoint = newDisk.TranslatePoint(new Point(0, 0), this);
+
+            targetTower.Children.Remove(disk);
+            // Добавляем диск в общий Grid (предположим, что ваш главный контейнер - это Grid)
+            (this.Content as Grid).Children.Add(disk);
+
+            // Устанавливаем абсолютные координаты диска в Grid
+            Canvas.SetLeft(disk, startPoint.X);
+            Canvas.SetBottom(disk, startPoint.Y);
+
+            // Получаем координаты целевой башни относительно окна
+            Point targetPosition = targetTower.TranslatePoint(new Point(0, 0), this);
+
+            // Создаем Storyboard для анимации
+            Storyboard storyboard = new Storyboard();
+
+            // Анимация по X (горизонтальное перемещение)
+            DoubleAnimation animX = new DoubleAnimation
+            {
+                From = Canvas.GetLeft(disk)-75,
+                To = targetPosition.X-10,
+                Duration = TimeSpan.FromSeconds(_AnimationSpeed/250)
+            };
+            Storyboard.SetTarget(animX, disk);
+            Storyboard.SetTargetProperty(animX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
+            storyboard.Children.Add(animX);
+
+            // Анимация по Y (подъем и опускание диска)
+            DoubleAnimation animY = new DoubleAnimation
+            {
+                From = Canvas.GetBottom(disk)-220,
+                To = endPoint.Y-241, // Подъем на 100 пикселей вверх
+                Duration = TimeSpan.FromSeconds(_AnimationSpeed/250)
+            };
+            Storyboard.SetTarget(animY, disk);
+            Storyboard.SetTargetProperty(animY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+            storyboard.Children.Add(animY);
+
+            // После завершения анимации, перемещаем диск в целевую башню
+            storyboard.Completed += (s, e) =>
+            {
+                // Удаляем диск из Grid
+                (this.Content as Grid).Children.Remove(disk);
+
+                // Добавляем диск обратно в целевую башню (StackPanel)
+                targetTower.Children.Insert(1, disk);
+
+                // Сбрасываем трансформации после перемещения
+                disk.RenderTransform = null;
+            };
+            
+            // Запускаем анимацию
+            storyboard.Begin();
+            
+        }
+
+
+
 
         private void ToggleStepByStepMode_Click(object sender, RoutedEventArgs e)
         {
