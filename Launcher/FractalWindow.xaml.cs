@@ -88,11 +88,11 @@ namespace Launcher
             double newScaleY = scaleTransform.ScaleY * scaleFactor;
 
             // Ограничиваем зум
-            if (newScaleX >= MinZoom && newScaleX <= MaxZoom && newScaleY >= MinZoom && newScaleY <= MaxZoom)
-            {
+            //if (newScaleX >= MinZoom && newScaleX <= MaxZoom && newScaleY >= MinZoom && newScaleY <= MaxZoom)
+           // {
                 scaleTransform.ScaleX = newScaleX;
                 scaleTransform.ScaleY = newScaleY;
-            }
+           // }
         }
 
         private void FractalCanvas_MouseDown(object sender, MouseButtonEventArgs e)
