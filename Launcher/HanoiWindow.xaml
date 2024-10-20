@@ -37,18 +37,19 @@
         <materialDesign:Card Grid.Row="1" Grid.ColumnSpan="3" Margin="120,0,120,10" BorderThickness="2">
             <!-- Панель управления -->
             <StackPanel  Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                    <Button Content="Назад" Width="100" Height="40" Margin="10"
-                            Background="#007ACC" Foreground="White" FontSize="14" FontWeight="Bold"
-                            Click="BackButton_Click"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Width="530">
 
-                    <Button Content="Следующий шаг" Width="150" Height="40" Margin="10"
+                    <Button x:Name="NextStepButton" Content="Следующий шаг" Width="144" Height="40" Margin="10"
                             Background="#007ACC" Foreground="White" FontSize="14" FontWeight="Bold"
                             Click="NextStepButton_Click"/>
+                    <Button x:Name="PreviousStepButton" Content="Шаг назад" Width="150" Height="40"
+                            Background="#007ACC" Foreground="White" FontSize="14" FontWeight="Bold"
+                            Click="PreviousStepButton_Click"/>
 
-                    <Button Content="Пошаговый режим" Width="170" Height="40" Margin="10"
+                    <Button x:Name="ToggleStepByStepModeButton" Content="Пошаговый режим" Width="170" Height="40" Margin="10"
                             Background="#007ACC" Foreground="White" FontSize="14" FontWeight="Bold"
                             Click="ToggleStepByStepMode_Click"/>
+
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
@@ -56,14 +57,17 @@
                     <TextBox x:Name="DiscCount" Text="3" Width="50" Margin="0,0,10,0" VerticalAlignment="Center" />
 
                     <TextBlock Text="Скорость анимации (мс):" VerticalAlignment="Center" Margin="10,0" />
-                    <Slider x:Name="AnimationSpeedSlider" Minimum="100" Maximum="2000" Value="500" Width="150" Margin="10,0"
+                    <Slider x:Name="AnimationSpeedSlider" Minimum="50" Maximum="800" Value="500" Width="150" Margin="10,0"
                             ValueChanged="AnimationSpeedSlider_ValueChanged"/>
                 </StackPanel>
 
-                <Button Content="Начать" Width="200" Height="50" Margin="20"
+                <Button x:Name="StartButton" Content="Начать" Width="200" Height="50" Margin="20"
                         Background="#28A745" Foreground="White" FontSize="16" FontWeight="Bold"
                         Click="StartButton_Click"/>
             </StackPanel>
         </materialDesign:Card>
+        <Button Content="Назад" Margin="143,161,266,48"
+                            Background="#007ACC" Foreground="White" FontSize="14" FontWeight="Bold"
+                            Click="BackButton_Click" Grid.ColumnSpan="2" Grid.Row="1"/>
     </Grid>
 </Window>
