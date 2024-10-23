@@ -33,15 +33,18 @@ namespace Launcher
                 return;
             }
 
+            // Очищаем предыдущие серии данных
+            PlotView.Model.Series.Clear();
+
             LineSeries series = new LineSeries();
 
             for (int i = 1; i <= maxDisks; i++) // Используем maxDisks в цикле
             {
-                double timeMs = MeasureHanoiTime(i) / 1000;
+                double timeMs = MeasureHanoiTime(i)/1000;
                 series.Points.Add(new DataPoint(i, timeMs));
             }
 
-            // Добавляем серию данных на график
+            // Добавляем новую серию данных на график
             PlotView.Model.Series.Add(series);
 
             // Обновляем график
@@ -50,6 +53,7 @@ namespace Launcher
             // Разблокируем кнопку после завершения измерений
             MeasurementsButton.IsEnabled = true;
         }
+
 
         private double MeasureHanoiTime(int discCount)
         {
@@ -60,7 +64,7 @@ namespace Launcher
             return stopwatch.ElapsedMilliseconds;
         }
 
-        // Рекурсивный алгоритм Ханойских башен (пустой, для измерения времени)
+        // Рекурсивный алгоритм Ханойских башен 
         private void Hanoi(int n, int from, int to, int aux)
         {
             if (n > 0)
