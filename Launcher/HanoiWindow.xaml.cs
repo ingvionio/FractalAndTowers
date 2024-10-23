@@ -178,7 +178,7 @@ namespace Launcher
                     DoubleAnimation animX = new DoubleAnimation
                     {
                         From = Canvas.GetLeft(disk) - 75,
-                        To = targetPosition.X + 30,
+                        To = targetPosition.X +60,
                         Duration = TimeSpan.FromSeconds(_AnimationSpeed / 250)
                     };
                     Storyboard.SetTarget(animX, disk);
@@ -189,7 +189,7 @@ namespace Launcher
                     DoubleAnimation animY = new DoubleAnimation
                     {
                         From = Canvas.GetBottom(disk) - 160,
-                        To = endPoint.Y - 15,
+                        To = endPoint.Y-50,
                         Duration = TimeSpan.FromSeconds(_AnimationSpeed / 250)
                     };
                     Storyboard.SetTarget(animY, disk);
