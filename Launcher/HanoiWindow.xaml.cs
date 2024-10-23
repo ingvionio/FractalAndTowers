@@ -147,8 +147,8 @@ namespace Launcher
 
                 if (_towers[from].Children.Count > 1)
                 {
-                    
-                    
+
+
                     var disk = _towers[from].Children.OfType<Rectangle>().First();
                     TranslateTransform transform = new TranslateTransform();
                     disk.RenderTransform = transform;
@@ -208,7 +208,7 @@ namespace Launcher
                         // Сбрасываем трансформации после перемещения
                         disk.RenderTransform = null;
 
-                       
+
                     };
 
                     // Запускаем анимацию

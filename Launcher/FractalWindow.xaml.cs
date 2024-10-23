@@ -84,15 +84,15 @@ namespace Launcher
         private void FractalCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             double scaleFactor = e.Delta > 0 ? 1.1 : 0.9;
-            double newScaleX = scaleTransform.ScaleX * scaleFactor;
-            double newScaleY = scaleTransform.ScaleY * scaleFactor;
+            double newScaleX = ScaleTransform.ScaleX * scaleFactor;
+            double newScaleY = ScaleTransform.ScaleY * scaleFactor;
 
             // Ограничиваем зум
             //if (newScaleX >= MinZoom && newScaleX <= MaxZoom && newScaleY >= MinZoom && newScaleY <= MaxZoom)
-           // {
-                scaleTransform.ScaleX = newScaleX;
-                scaleTransform.ScaleY = newScaleY;
-           // }
+            // {
+            ScaleTransform.ScaleX = newScaleX;
+            ScaleTransform.ScaleY = newScaleY;
+            // }
         }
 
         private void FractalCanvas_MouseDown(object sender, MouseButtonEventArgs e)
@@ -113,8 +113,8 @@ namespace Launcher
                 var deltaY = currentPosition.Y - _lastMousePosition.Y;
                 _lastMousePosition = currentPosition;
 
-                translateTransform.X += deltaX;
-                translateTransform.Y += deltaY;
+                TranslateTransform.X += deltaX;
+                TranslateTransform.Y += deltaY;
             }
         }
 

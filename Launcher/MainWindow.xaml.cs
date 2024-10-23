@@ -24,5 +24,11 @@ namespace Launcher
             this.Hide();
             hanoiWindow.Closed += (s, args) => this.Show(); // Добавляем обработчик события Closed
         }
+
+        private void OpenGraphPage_Click(object sender, RoutedEventArgs e)
+        {
+            HanoiGraphWindow graphWindow = new HanoiGraphWindow();
+            graphWindow.Show();
+        }
     }
 }
